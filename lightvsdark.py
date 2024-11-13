@@ -42,3 +42,29 @@ def encode_with_square_colors(message):
         node = node.add_variation(move)
 
     return game
+
+def decode(game):
+    board = chess.Board()
+    binary_message = ""
+    
+    with open(filename, "r") as pgn_file:
+        while True:
+            game = chess.pgn.read_game(pgn_file)
+            if game is None:
+                break  # End of file
+
+            # Traverse each move in the game
+            for move in game.mainline_moves():
+            # Check if the move landed on a light square or dark square
+                if is_light_square(move.to_square):
+                    binary_message += "1"
+                else:
+                    binary_message += "0"
+        
+            board.push(move)
+
+    # Split binary into 8-bit chunks and decode to characters
+    chars = [chr(int(binary_message[i:i+8], 2)) for i in range(0, len(binary_message), 8)]
+    decoded_message = ''.join(chars)
+
+    return decoded_message
