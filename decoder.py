@@ -1,31 +1,16 @@
 import chess.pgn
+import binary_encoding
 
-def extract_comments_from_pgn(filename):
-    comments = []
-
-    # Open the PGN file and parse each game
-    with open(filename, "r") as pgn_file:
-        while True:
-            game = chess.pgn.read_game(pgn_file)
-            if game is None:
-                break  # End of file
-
-            # Traverse through each move in the game
-            node = game
-            while node.variations:
-                node = node.variation(0)  # Move to the next node
-                if node.comment:
-                    comments.append(node.comment)
-
-    # Combine all comments into a single string
-    all_comments = " ".join(comments)
-    return all_comments
+openings = {
+    #"Ruy Lopez": ["e4", "e5", "Nf3", "Nc6", "Bb5"], 
+    "Sicilian Defense": ["e4", "c5", "Nf3", "d6"], # light vs dark binary
+    "French Defense": ["e4", "e6", "d4", "d5"], # comment binary
+    "Queen's Gambit": ["d4", "d5", "c4"], # move based ASCII
+    #"King's Indian Defense": ["d4", "Nf6", "c4", "g6"],
+}
 
 if __name__ == "__main__":
-    # Replace 'random_chess_game_with_comments.pgn' with your PGN file name
-    filename = "random_chess_game_with_messages.pgn"
-    all_comments = extract_comments_from_pgn(filename)
-    
-    # Print the combined comments
-    print("Combined Comments:")
-    print(all_comments)
+    filename = input("Please enter the name of the file (ex test.pgn): ")
+    # add check here for specific openings in order to call specific decode functions
+    message = binary_encoding.comment_decode(filename)
+    print("Decoded Message: " + message)

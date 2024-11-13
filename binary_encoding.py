@@ -43,8 +43,28 @@ def comment_encode(message):
 
     return game
 
-def comment_decode(game):
-    #tbd
+def comment_decode(filename):
+    binary = ""
+
+    # Open the PGN file and parse each game
+    with open(filename, "r") as pgn_file:
+        while True:
+            game = chess.pgn.read_game(pgn_file)
+            if game is None:
+                break  # End of file
+
+            # Traverse through each move in the game
+            node = game
+            while node.variations:
+                node = node.variation(0)  # Move to the next node
+                if node.comment:
+                    if node.comment in one_comment:
+                        binary = binary + "1"
+                    elif node.comment in zero_comment:
+                        binary = binary + "0"
+
+    message = ''.join(chr(int(binary[i:i+8], 2)) for i in range(0, len(binary), 8))
+
     return message
 
 

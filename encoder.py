@@ -1,6 +1,5 @@
 import chess
 import chess.pgn
-import random
 import binary_encoding
 import lightvsdark
 import moveToASCII
