@@ -7,9 +7,13 @@ def is_light_square(square):
     file = chess.square_file(square)
     return (rank + file) % 2 == 0
 
-def encode_with_square_colors(board, binary_message):
+def encode_with_square_colors(message):
+    board = chess.Board()
     game = chess.pgn.Game()
     node = game
+
+    # Convert the message into binary
+    binary_message = ''.join(format(ord(char), '08b') for char in message)
 
     for bit in binary_message:
         legal_moves = list(board.legal_moves)
@@ -29,10 +33,10 @@ def encode_with_square_colors(board, binary_message):
 
     return game
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
     # Example: Convert the message into binary (e.g., "1010")
-    secret_message = "1010"
+   # secret_message = "1010"
     
-    board = chess.Board()
-    game = encode_with_square_colors(board, secret_message)
-    print(game)
+   # board = chess.Board()
+    #game = encode_with_square_colors(board, secret_message)
+    #print(game)
