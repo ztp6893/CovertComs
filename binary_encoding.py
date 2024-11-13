@@ -1,7 +1,7 @@
 import chess
 import chess.pgn
 
-def encode_message_in_pgn(board, message):
+def comment_encode(board, message):
     # Convert the message into binary
     binary_message = ''.join(format(ord(char), '08b') for char in message)
 
@@ -22,7 +22,7 @@ def encode_message_in_pgn(board, message):
     return game
 
 # Example usage
-board = chess.Board()
-secret_message = "Hi"
-game = encode_message_in_pgn(board, secret_message)
-print(game)
+#board = chess.Board()
+#secret_message = "Hi"
+#game = encode_message_in_pgn(board, secret_message)
+#print(game)
