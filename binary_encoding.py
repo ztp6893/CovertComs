@@ -4,13 +4,13 @@ import random
 
 # Define possible comments
 one_comment = [
-    "Check this out!"
-    "ha!"
+    "Check this out!",
+    "ha!",
 ]
 
 zero_comment = [
-    "Nothing special here"
-    "boring"
+    "Nothing special here",
+    "boring...",
 ]
 
 # Opening
@@ -37,9 +37,9 @@ def comment_encode(message):
         
         # Encode the bit as a comment
         if bit == "1":
-            node.comment = random.choice(one_comment)
+            node.comment = random.choice(list(one_comment))
         else:
-            node.comment = random.choice(zero_comment)
+            node.comment = random.choice(list(zero_comment))
 
     return game
 
