@@ -1,5 +1,6 @@
 import chess
 import chess.pgn
+import random
 
 def is_light_square(square):
     """Check if a square is light-colored."""
@@ -8,25 +9,28 @@ def is_light_square(square):
     return (rank + file) % 2 == 0
 
 def encode_with_square_colors(message):
-    board = chess.Board()
     game = chess.pgn.Game()
     node = game
 
-    # Convert the message into binary
+    board = chess.Board()
+
     binary_message = ''.join(format(ord(char), '08b') for char in message)
 
     for bit in binary_message:
-        legal_moves = list(board.legal_moves)
+        # Filter legal moves based on the current bit
         if bit == "1":
-            # Find the first move to a light square
-            move = next((m for m in legal_moves if is_light_square(m.to_square)), None)
+            # Collect moves that land on light squares
+            moves = [m for m in board.legal_moves if is_light_square(m.to_square)]
         else:
-            # Find the first move to a dark square
-            move = next((m for m in legal_moves if not is_light_square(m.to_square)), None)
+            # Collect moves that land on dark squares
+            moves = [m for m in board.legal_moves if not is_light_square(m.to_square)]
         
-        if move is None:
+        if not moves:
             raise ValueError(f"No legal moves available for encoding bit '{bit}'")
 
+        # Choose a random move from the filtered list
+        move = random.choice(moves)
+        
         # Push the selected move to the board and add it to the PGN
         board.push(move)
         node = node.add_variation(move)
