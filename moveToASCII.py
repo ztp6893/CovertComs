@@ -4,8 +4,9 @@ import chess
 ASCII_OFFSET = 32  # Start encoding from space in ASCII
 
 # Encoding a message to chess moves based on target square's row and column
-def encode_message_to_moves(board, message):
+def encode_message_to_moves(message):
     moves = []
+    board = chess.Board()
 
     # add chosen opening to the board here first before message
     
@@ -51,12 +52,12 @@ def decode_moves_to_message(board, moves):
     return decoded_message
 
 # Example usage
-board = chess.Board()
-message = "HELLO"
-encoded_moves = encode_message_to_moves(board, message)
-print("Encoded moves:", [board.san(move) for move in encoded_moves])
+#board = chess.Board()
+#message = "HELLO"
+#encoded_moves = encode_message_to_moves(board, message)
+#print("Encoded moves:", [board.san(move) for move in encoded_moves])
 
 # Reset board for decoding
-board = chess.Board()
-decoded_message = decode_moves_to_message(board, encoded_moves)
-print("Decoded message:", decoded_message)
+#board = chess.Board()
+#decoded_message = decode_moves_to_message(board, encoded_moves)
+#print("Decoded message:", decoded_message)

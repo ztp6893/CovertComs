@@ -32,11 +32,3 @@ def encode_with_square_colors(message):
         node = node.add_variation(move)
 
     return game
-
-#if __name__ == "__main__":
-    # Example: Convert the message into binary (e.g., "1010")
-   # secret_message = "1010"
-    
-   # board = chess.Board()
-    #game = encode_with_square_colors(board, secret_message)
-    #print(game)

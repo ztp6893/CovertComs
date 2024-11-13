@@ -23,7 +23,7 @@ if __name__ == "__main__":
     print("Available openings:")
     for i, opening in enumerate(openings.keys(), start=1):
         print(f"{i}.{opening}")
-    choice = int(input("Select an opening by number (1-5): "))
+    choice = int(input("Select an opening by number (1-3): "))
     opening_choice = list(openings.keys())[choice - 1]
     message = input("Please input message to transmit: ")
 

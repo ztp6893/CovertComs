@@ -1,4 +1,3 @@
-import chess.pgn
 import binary_encoding
 
 openings = {
