@@ -1,6 +1,7 @@
 import binary_encoding
 import chess.pgn
 import lightvsdark
+import moveToASCII
 
 OPENINGS = {
     #"Ruy Lopez": ["e4", "e5", "Nf3", "Nc6", "Bb5"], 
@@ -23,11 +24,14 @@ def perform_action(opening_name, game):
     """
     Perform an action if a specific opening is detected.
     """
+    message = ""
     print(f"Detected opening: {opening_name}")
     if opening_name == "French Defense":
         message = binary_encoding.comment_decode(game)
     elif opening_name == "Sicilian Defense":
         message = lightvsdark.decode(game)
+    elif opening_name == "Queen's Gambit":
+        message = moveToASCII.decode_game_to_message(game)
     # Add your custom action here. For example:
     # Run a function, log information, or analyze the game further.
     # This is a placeholder for whatever action you want to perform.

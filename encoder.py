@@ -34,7 +34,7 @@ if __name__ == "__main__":
     if opening_choice == "Sicilian Defense":
         game = lightvsdark.encode_with_square_colors(message) # WIP
     if opening_choice == "Queen's Gambit":
-        game = moveToASCII.encode_message_to_moves(message) # the code for this one is superbly fucked right now
+        game = moveToASCII.encode_message_to_game(message) # the code for this one is superbly fucked right now
 
     #add code here to complete game after message is put into the game? Figure out what needs to be returned, game vs board?
 
