@@ -2,9 +2,10 @@ import binary_encoding
 import chess.pgn
 import lightvsdark
 import moveToASCII
+import pieces
 
 OPENINGS = {
-    #"Ruy Lopez": ["e4", "e5", "Nf3", "Nc6", "Bb5"], 
+    "Ruy Lopez": ["e4", "e5", "Nf3", "Nc6", "Bb5"], 
     "Sicilian Defense": ["e4", "c5", "Nf3", "d6"], # light vs dark binary
     "French Defense": ["e4", "e6", "d4", "d5"], # comment binary
     "Queen's Gambit": ["d4", "d5", "c4"], # move based ASCII
@@ -32,6 +33,8 @@ def perform_action(opening_name, game):
         message = lightvsdark.decode(game)
     elif opening_name == "Queen's Gambit":
         message = moveToASCII.decode_game_to_message(game)
+    elif opening_name == "Ruy Lopez":
+        message = pieces.decode_with_piece_type_mapping(game)
     # Add your custom action here. For example:
     # Run a function, log information, or analyze the game further.
     # This is a placeholder for whatever action you want to perform.

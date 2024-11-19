@@ -69,14 +69,14 @@ def encode_message_to_game(message):
     return game
 
 
-def decode_game_to_message(game):
+def decode_game_to_message(pgn_file_path):
     """
     Decodes a PGN game file into a message by analyzing the target squares of the moves.
     Skips the initial Queen's Gambit moves and processes the rest directly.
     """
     # Open the PGN file and parse the game
-    #with open(pgn_file_path, "r") as pgn_file:
-    #    game = chess.pgn.read_game(pgn_file)
+    with open(pgn_file_path, "r") as pgn_file:
+        game = chess.pgn.read_game(pgn_file)
 
     # Extract all moves from the game
     moves = []
@@ -107,7 +107,8 @@ def decode_game_to_message(game):
 
     return message
 
-game = encode_message_to_game("Hello World")
-print(game)
-message = decode_game_to_message(game)
-print(message)
+# Test Case
+#game = encode_message_to_game("Hello World")
+#print(game)
+#message = decode_game_to_message(game)
+#print(message)

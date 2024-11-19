@@ -3,9 +3,10 @@ import chess.pgn
 import binary_encoding
 import lightvsdark
 import moveToASCII
+import pieces
 
 openings = {
-    #"Ruy Lopez": ["e4", "e5", "Nf3", "Nc6", "Bb5"], 
+    "Ruy Lopez": ["e4", "e5", "Nf3", "Nc6", "Bb5"], 
     "Sicilian Defense": ["e4", "c5", "Nf3", "d6"], # light vs dark binary
     "French Defense": ["e4", "e6", "d4", "d5"], # comment binary
     "Queen's Gambit": ["d4", "d5", "c4"], # move based ASCII
@@ -23,18 +24,20 @@ if __name__ == "__main__":
     print("Available openings:")
     for i, opening in enumerate(openings.keys(), start=1):
         print(f"{i}.{opening}")
-    choice = int(input("Select an opening by number (1-3): "))
+    choice = int(input("Select an opening by number (1-4): "))
     opening_choice = list(openings.keys())[choice - 1]
     message = input("Please input message to transmit: ")
 
 
     # Call function based on opening
     if opening_choice == "French Defense":
-        game = binary_encoding.comment_encode(message) # works?
-    if opening_choice == "Sicilian Defense":
-        game = lightvsdark.encode_with_square_colors(message) # WIP
-    if opening_choice == "Queen's Gambit":
-        game = moveToASCII.encode_message_to_game(message) # the code for this one is superbly fucked right now
+        game = binary_encoding.comment_encode(message)
+    elif opening_choice == "Sicilian Defense":
+        game = lightvsdark.encode_with_square_colors(message)
+    elif opening_choice == "Queen's Gambit":
+        game = moveToASCII.encode_message_to_game(message)
+    elif opening_choice == "Ruy Lopez":
+        game = pieces.encode_with_piece_type_mapping(message)
 
     #add code here to complete game after message is put into the game? Figure out what needs to be returned, game vs board?
 
