@@ -1,63 +1,107 @@
 import chess
+import chess.pgn
 
-# ASCII Offset: make sure our computed values map to readable ASCII characters
-ASCII_OFFSET = 32  # Start encoding from space in ASCII
+# Constants
+ASCII_MIN = 32  # Space (' ')
+ASCII_MAX = 126  # Tilde ('~')
+BOARD_SIZE = 64  # Number of squares on a chessboard
+QUEENS_GAMBIT_LENGTH = 3  # Number of moves in the Queen's Gambit opening
 
-# Encoding a message to chess moves based on target square's row and column
-def encode_message_to_moves(message):
-    moves = []
+#opening
+queens_gambit = ["d4", "d5", "c4"]
+
+def map_ascii_to_square(ascii_val, attempt=0):
+    """
+    Maps an ASCII value to a chessboard square index using modular arithmetic.
+    Adds the attempt to handle shifted mappings.
+    """
+    return (ascii_val - ASCII_MIN + attempt) % BOARD_SIZE
+
+
+def encode_message_to_game(message):
+    """
+    Encodes a message into a PGN game by converting each character into legal chess moves.
+    Ensures all characters are encoded by remapping unreachable targets.
+    """
+    
     board = chess.Board()
+    game = chess.pgn.Game()
+    node = game
 
-    # add chosen opening to the board here first before message
-    
+    for open_move in queens_gambit:
+        move = board.parse_san(open_move)  # Parse the move in SAN notation
+        board.push(move)                  # Make the move on the board
+        node = node.add_variation(move)   # Add the move to the PGN
+
     for char in message:
-        # Calculate ASCII code for character
+        # Get the ASCII value of the character
         ascii_val = ord(char)
-        ascii_adjusted = ascii_val - ASCII_OFFSET
-        
-        # Determine target square from ASCII value (Column and Row)
-        col = (ascii_adjusted // 8) + 1  # Calculate column (1-8)
-        row = (ascii_adjusted % 8) + 1  # Calculate row (1-8)
-        
-        # Convert column (1-8) to chess notation ('a'-'h')
-        target_square = chess.square(col - 1, row - 1)
-        
-        # Find a legal move to the target square
-        for pawn_square in range(chess.A2, chess.H2 + 1):
-            if board.piece_at(pawn_square) == chess.Piece(chess.PAWN, chess.WHITE):
-                move = chess.Move(pawn_square, target_square)
-                if board.is_legal(move):
-                    board.push(move)
-                    moves.append(move)
-                    break
-                
-    return moves
 
-# Decoding moves back to message by analyzing the row and column of each move's target square
-def decode_moves_to_message(board, moves):
-    decoded_message = ""
-    
-    for move in moves:
+        # Ensure the character is within the printable range
+        if ASCII_MIN <= ascii_val <= ASCII_MAX:
+            attempt = 0  # Start with the first mapping attempt
+            while True:
+                # Map the ASCII value to a square
+                square_index = map_ascii_to_square(ascii_val, attempt)
+                col = chess.square_file(square_index)  # Column (0-7)
+                row = chess.square_rank(square_index)  # Row (0-7)
+
+                # Try to find a legal move to this square
+                target_square = chess.square(col, row)
+                legal_move_found = False
+
+                for move in board.legal_moves:
+                    if move.to_square == target_square:
+                        board.push(move)  # Update the board
+                        node = node.add_variation(move)  # Add move to the PGN game
+                        legal_move_found = True
+                        break
+
+                if legal_move_found:
+                    # Store the attempt as a comment in the PGN
+                    node.comment = str(attempt)
+                    break  # Stop retrying once the move is encoded
+                else:
+                    attempt += 1  # Retry with a shifted mapping
+        else:
+            print(f"Warning: Character '{char}' is out of the printable ASCII range.")
+
+    return game
+
+
+def decode_game_to_message(pgn_file_path):
+    """
+    Decodes a PGN game file into a message by analyzing the target squares of the moves.
+    Skips the initial Queen's Gambit moves and processes the rest directly.
+    """
+    # Open the PGN file and parse the game
+    with open(pgn_file_path, "r") as pgn_file:
+        game = chess.pgn.read_game(pgn_file)
+
+    # Extract all moves from the game
+    moves = []
+    comments = []
+    node = game
+    while node.variations:
+        move = node.variations[0].move
+        comment = node.variations[0].comment  # Retrieve the attempt comment
+        moves.append((move, int(comment) if comment.isdigit() else 0))
+        node = node.variations[0]
+
+    # Skip the Queen's Gambit moves
+    moves = moves[QUEENS_GAMBIT_LENGTH:]
+
+    # Decode each move
+    message = ""
+    for move, attempt in moves:
         target_square = move.to_square
-        col = chess.square_file(target_square) + 1
-        row = chess.square_rank(target_square) + 1
-        
-        # Convert column and row back to ASCII
-        ascii_val = ((col - 1) * 8) + (row - 1) + ASCII_OFFSET
-        decoded_message += chr(ascii_val)
-        
-        # Make the move on the board (if needed for board consistency)
-        board.push(move)
-    
-    return decoded_message
+        square_index = chess.square_file(target_square) + (chess.square_rank(target_square) * 8)
 
-# Example usage
-#board = chess.Board()
-#message = "HELLO"
-#encoded_moves = encode_message_to_moves(board, message)
-#print("Encoded moves:", [board.san(move) for move in encoded_moves])
+        # Reverse the attempt offset to get the original ASCII value
+        ascii_val = (square_index - attempt) % BOARD_SIZE + ASCII_MIN
+        if ASCII_MIN <= ascii_val <= ASCII_MAX:  # Ensure it's within the printable range
+            message += chr(ascii_val)
+        else:
+            message += "?"  # Placeholder for invalid characters
 
-# Reset board for decoding
-#board = chess.Board()
-#decoded_message = decode_moves_to_message(board, encoded_moves)
-#print("Decoded message:", decoded_message)
+    return message
