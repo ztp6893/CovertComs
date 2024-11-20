@@ -10,14 +10,6 @@ QUEENS_GAMBIT_LENGTH = 3  # Number of moves in the Queen's Gambit opening
 #opening
 queens_gambit = ["d4", "d5", "c4"]
 
-def map_ascii_to_square(ascii_val, attempt=0):
-    """
-    Maps an ASCII value to a chessboard square index using modular arithmetic.
-    Adds the attempt to handle shifted mappings.
-    """
-    return (ascii_val - ASCII_MIN + attempt) % BOARD_SIZE
-
-
 def encode_message_to_game(message):
     """
     Encodes a message into a PGN game by converting each character into legal chess moves.
@@ -34,35 +26,41 @@ def encode_message_to_game(message):
         node = node.add_variation(move)   # Add the move to the PGN
 
     for char in message:
+        # Convert lowercase letters to uppercase
+        char = char.upper()
+
+
         # Get the ASCII value of the character
         ascii_val = ord(char)
 
         # Ensure the character is within the printable range
         if ASCII_MIN <= ascii_val <= ASCII_MAX:
-            attempt = 0  # Start with the first mapping attempt
+            adjusted_ascii = ascii_val - ASCII_MIN
+            attempt = 0  # Start with attempt = 0
+
             while True:
-                # Map the ASCII value to a square
-                square_index = map_ascii_to_square(ascii_val, attempt)
-                col = chess.square_file(square_index)  # Column (0-7)
-                row = chess.square_rank(square_index)  # Row (0-7)
+                # Map the adjusted ASCII value to a square index
+                square_index = (adjusted_ascii + attempt) % BOARD_SIZE
 
-                # Try to find a legal move to this square
-                target_square = chess.square(col, row)
+                # Get the target square
+                target_square = square_index
+
+                # Try to find a legal move to the target square
                 legal_move_found = False
-
                 for move in board.legal_moves:
                     if move.to_square == target_square:
-                        board.push(move)  # Update the board
-                        node = node.add_variation(move)  # Add move to the PGN game
+                        board.push(move)
+                        node = node.add_variation(move)
+                        # Store the attempt offset in the comment
+                        node.comment = str(attempt)
                         legal_move_found = True
                         break
 
                 if legal_move_found:
-                    # Store the attempt as a comment in the PGN
-                    node.comment = str(attempt)
-                    break  # Stop retrying once the move is encoded
+                    break  # Move encoded successfully
                 else:
-                    attempt += 1  # Retry with a shifted mapping
+                    attempt += 1  # Try next attempt
+
         else:
             print(f"Warning: Character '{char}' is out of the printable ASCII range.")
 
@@ -94,13 +92,18 @@ def decode_game_to_message(pgn_file_path):
     # Decode each move
     message = ""
     for move, attempt in moves:
+        # Extract the target square
         target_square = move.to_square
-        square_index = chess.square_file(target_square) + (chess.square_rank(target_square) * 8)
+        square_index = target_square
 
-        # Reverse the attempt offset to get the original ASCII value
-        ascii_val = (square_index - attempt) % BOARD_SIZE + ASCII_MIN
-        print(ascii_val)
-        if ASCII_MIN <= ascii_val <= ASCII_MAX:  # Ensure it's within the printable range
+        # Reconstruct the adjusted ASCII value
+        adjusted_ascii = (square_index - attempt) % BOARD_SIZE
+
+        # Reconstruct the original ASCII value
+        ascii_val = adjusted_ascii + ASCII_MIN
+
+        # Append the character to the message
+        if ASCII_MIN <= ascii_val <= ASCII_MAX:
             message += chr(ascii_val)
         else:
             message += "?"  # Placeholder for invalid characters
